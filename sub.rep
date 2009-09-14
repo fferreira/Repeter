@@ -1,0 +1,6 @@
+[0, 5]
+
+repeter r1 fois [
+	r0 <- r2
+	inc(r2)
+	]
