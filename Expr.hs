@@ -19,10 +19,15 @@ module Expr
     ,Context
     ,contextResult
     ,contextFromList
+    ,contextGet -- really export these 3 vars?
+    ,contextSet
+    ,contextGetFreeVar
     ,evaluer
+    ,evaluerBlock
     ) where
 
 import qualified Data.Map as Map
+import Control.Monad.State
 
 type RepVar = Integer
 
@@ -44,6 +49,15 @@ showRepList [] = "\n\t"
 showRepList (x:xs) = "\n\t" ++ show x  ++ showRepList xs
 
 -- evaluation functions
+
+{-
+type EvalState = State Context
+
+ev :: RepExpr -> EvalState ()
+ev (RepInc var) = do
+  ctx <- get
+  put (contextSet ctx var (1 + contextGet ctx var))
+-}
 
 evaluer :: Context -> RepExpr -> Context
 evaluer ctx (RepInc var)         = contextSet ctx var (1 + contextGet ctx var)
@@ -76,3 +90,5 @@ contextFromList l = buildContext l (Map.empty::Context) 0
       buildContext [] c _ = c
       buildContext (x:xs) c lvl = buildContext xs (contextSet c lvl x) (lvl + 1)
 
+contextGetFreeVar :: Context -> RepVar
+contextGetFreeVar ctx = 1 + maximum (Map.keys ctx)
