@@ -17,9 +17,10 @@ import Data.Either
 
 import Expr
 
+
 runExprParser p input
-    = case (parse p "" input) of
-        Left err ->  RepInc 1313131313 --corriger!!
+    = case (parse (many p) "" input) of
+        Left err -> [RepInc 1313131313] --corriger!!
 
         Right x  -> x
 
@@ -73,4 +74,8 @@ execute prog = contextResult (evaluer ctx expr)
       ctx = (contextFromList . readIntegerList . head .lines) prog
       expr = (runExprParser parseExpr ((concat . tail . lines) prog))
 
+parseOnly prog = (runExprParser parseExpr ((concat . tail . lines) prog))
+
 main = interact (show . execute)
+
+--main = interact (show . parseOnly)

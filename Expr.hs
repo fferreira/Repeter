@@ -59,10 +59,16 @@ ev (RepInc var) = do
   put (contextSet ctx var (1 + contextGet ctx var))
 -}
 
-evaluer :: Context -> RepExpr -> Context
-evaluer ctx (RepInc var)         = contextSet ctx var (1 + contextGet ctx var)
-evaluer ctx (RepAff dest source) = contextSet ctx dest (contextGet ctx source)
-evaluer ctx (RepRep var block)   = evaluerBlockNFois ctx (contextGet ctx var) block 
+evaluer :: Context -> [RepExpr] -> Context
+evaluer ctx [] = ctx
+evaluer ctx (x:xs) = evaluer ctx' xs
+    where
+      ctx' = evaluerOne ctx x
+
+evaluerOne :: Context -> RepExpr -> Context
+evaluerOne ctx (RepInc var)         = contextSet ctx var (1 + contextGet ctx var)
+evaluerOne ctx (RepAff dest source) = contextSet ctx dest (contextGet ctx source)
+evaluerOne ctx (RepRep var block)   = evaluerBlockNFois ctx (contextGet ctx var) block 
 
 evaluerBlockNFois :: Context -> Integer -> [RepExpr] -> Context
 evaluerBlockNFois ctx 0 _ = ctx
@@ -71,7 +77,7 @@ evaluerBlockNFois ctx n block =
 
 evaluerBlock :: Context -> [RepExpr] -> Context
 evaluerBlock ctx [] = ctx
-evaluerBlock ctx (x:xs) = evaluerBlock (evaluer ctx x) xs
+evaluerBlock ctx (x:xs) = evaluerBlock (evaluerOne ctx x) xs
 
 -- context manipulation functions
 
